@@ -1,0 +1,11 @@
+BASE: ['../train_configs/intra/4Equipleth_EMMF.yaml']
+TOOLBOX_MODE: "only_test"
+DEVICE: cuda:1
+
+TEST:
+  # 测试预测/可视化输出目录；留空时默认保存到 LOG.PATH/test_outputs，即runs/exp/<EXP.NAME>/test_outputs。
+  OUTPUT_SAVE_DIR: ""
+
+INFERENCE:
+  MODEL_PATH: "runs/exp/Equipleth_EMMF_10s_09/Equipleth_Equipleth_Equipleth_EMMF_Epoch52.pth"
+  EVALUATION_LEVEL: video # 可选 clip 或 video

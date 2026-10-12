@@ -1,0 +1,13 @@
+# 运行输出
+run/
+runs/
+outputs/
+logs/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 环境文件
+.env
+.venv/

@@ -1,0 +1,14 @@
+BASE: ['../train_configs/intra/4Equipleth_FusionPhys.yaml']
+TOOLBOX_MODE: "only_test"
+DEVICE: cuda:5
+
+INFERENCE:
+  # 要推理的 FusionPhys 权重；换 batch size 做指标稳定性检查时，只改 BATCH_SIZE，不改这个路径。
+  MODEL_PATH: "runs/exp/Equipleth_FusionPhys_288/Equipleth_Equipleth_Equipleth_FusionPhys_Epoch0.pth"
+  # 推理 batch size；同一个 checkpoint 下，改这个值理论上不应明显改变指标。
+  BATCH_SIZE: 2
+  EVALUATION_METHOD: "FFT"
+  # video 表示按完整 subject/session 重组后评估；clip 表示逐 clip 评估。
+  EVALUATION_LEVEL: video
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False

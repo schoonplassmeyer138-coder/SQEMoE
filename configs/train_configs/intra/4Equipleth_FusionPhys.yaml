@@ -1,0 +1,100 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"
+
+TRAIN:
+  BATCH_SIZE: 8
+  EPOCHS: 10
+  LR: 1e-4
+  # AdamW 权重衰减；论文设置为 0.1。
+  WEIGHT_DECAY: 0.1
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/data/users/lifangbiao/datasets/Equipleth/Equipleth-Raw"
+    SPLIT_FILE: "/data/users/lifangbiao/datasets/Equipleth/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    PREPROCESS:
+      # FusionPhys 在模型内部对每个 RGB clip 做标准化，因此 Loader 保持 Raw。
+      DATA_TYPE: ['Raw']
+      # PPG 标签由 Loader 基于完整 trial 做标准化。
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      NUM_SAMPLES: 30
+      # 输入片段长度；需能被 2^WAVELET_LEVEL 整除，论文训练用 288。
+      CHUNK_LENGTH: 288
+
+VALID:
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/data/users/lifangbiao/datasets/Equipleth/Equipleth-Raw"
+    SPLIT_FILE: "/data/users/lifangbiao/datasets/Equipleth/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    PREPROCESS:
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 288
+
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson','SNR']
+  # False 表示用验证集选择出的最佳 epoch 测试。
+  USE_LAST_EPOCH: False
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/data/users/lifangbiao/datasets/Equipleth/Equipleth-Raw"
+    SPLIT_FILE: "/data/users/lifangbiao/datasets/Equipleth/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    PREPROCESS:
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      # 论文测试可用 896；这里与训练保持一致。
+      CHUNK_LENGTH: 288
+
+DEVICE: cuda:1
+NUM_OF_GPU_TRAIN: 1
+
+LOG:
+  # 训练曲线等日志输出根目录，最终路径会拼上 EXP.NAME。
+  PATH: runs/exp
+
+EXP:
+  # 实验结果名；可按实验编号自由修改，不影响预处理缓存读取路径。
+  NAME: Equipleth_FusionPhys_288_01
+
+MODEL:
+  # checkpoint 输出根目录，最终路径为 runs/exp/<EXP.NAME>/PreTrainedModels。
+  MODEL_DIR: runs/exp
+  # main.py 根据该字段选择 FusionPhysTrainer。
+  NAME: FusionPhys
+  # checkpoint 文件名前缀。
+  MODEL_FILE_NAME: Equipleth_Equipleth_Equipleth_FusionPhys
+  # 断点恢复路径；不恢复时留空。
+  RESUME: ""
+  FUSIONPHYS:
+    # 模态模式：camera_only / camera_camera_fusion / camera_rf_fusion。
+    MODALITY_MODE: camera_rf_fusion
+    # 单视频模态通道数；camera_only 时使用。
+    IN_CH: 3
+    # 融合模式通道数：[RGB通道数, 第二模态通道数]；RF 为 10；NIR 为 1。
+    IN_CHS: [3, 10]
+    # 模型特征维度；论文主实验使用 64。
+    DIM: 64
+    # 子模态网格边长；8 表示 8x8=64 个子模态。
+    SUBMODALITY_GRID_SIZE: 8
+    # Haar 小波分解层数；论文主实验使用 5。
+    WAVELET_LEVEL: 5
+    # Physiological Interaction Block 数量；论文主实验使用 4。
+    PIB_BLOCKS: 4
+
+INFERENCE:
+  BATCH_SIZE: 8
+  EVALUATION_METHOD: "FFT"
+  EVALUATION_LEVEL: video
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False

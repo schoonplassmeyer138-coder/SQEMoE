@@ -1,0 +1,77 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"
+
+TRAIN:
+  BATCH_SIZE: 2
+  EPOCHS: 30
+  LR: 9e-3
+  AUG: 0
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    USE_RF: False
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      NUM_SAMPLES: 30
+      CHUNK_LENGTH: 160
+
+VALID:
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    USE_RF: False
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 160
+
+TEST:
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
+  USE_LAST_EPOCH: False
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    USE_RF: False
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 160
+
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+
+LOG:
+  PATH: runs/exp
+
+EXP:
+  NAME: Equipleth_RhythmFormer_160_01
+
+MODEL:
+  MODEL_DIR: runs/exp
+  NAME: RhythmFormer
+  MODEL_FILE_NAME: Equipleth_Equipleth_Equipleth_RhythmFormer
+
+INFERENCE:
+  BATCH_SIZE: 2
+  EVALUATION_METHOD: "FFT"
+  EVALUATION_LEVEL: video
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False
+    WINDOW_SIZE: 10
+  MODEL_PATH: ""

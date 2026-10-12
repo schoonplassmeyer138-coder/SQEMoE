@@ -1,0 +1,98 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"
+
+TRAIN:
+  BATCH_SIZE: 2
+  EPOCHS: 30
+  LR: 1e-4
+  WEIGHT_DECAY: 0.01
+  GRAD_CLIP: 1.0
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    # True 强制重算当前 split 的 RGB trial 统计量；日常训练保持 False 以复用缓存。
+    DO_PREPROCESS: False
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      NUM_SAMPLES: 30
+      CHUNK_LENGTH: 160
+
+VALID:
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    DO_PREPROCESS: False
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 160
+
+TEST:
+  METRICS: ['MAE', 'RMSE', 'MAPE', 'Pearson', 'SNR']
+  USE_LAST_EPOCH: False
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    DO_PREPROCESS: False
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 160
+
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+
+LOG:
+  PATH: runs/exp
+
+EXP:
+  NAME: Equipleth_SQGMoE_160_09
+
+MODEL:
+  MODEL_DIR: runs/exp
+  NAME: SQGMoE
+  MODEL_FILE_NAME: Equipleth_Equipleth_Equipleth_SQGMoE
+  RESUME: ""
+  SQGMOE:
+    # RGB 特征提取器：RhythmFormer 或 PhysNet。
+    RGB_ENCODER: PhysNet
+    # 质量引导 SQGMoE Transformer 的堆叠层数。
+    NUM_LAYERS: 2
+    # 跨模态融合、SQGMoE 层和最终波形预测头使用的 dropout 概率。
+    DROPOUT: 0.1
+    # 两个单模态投影波形的 Neg-Pearson 损失权重；设为 0 停用对应约束。
+    RGB_PPG_WEIGHT: 1.0
+    RF_PPG_WEIGHT: 1.0
+    # DFT 中搜索心率主峰的频率范围，单位 Hz；[0.7, 3.0] 对应 42-180 BPM。
+    QUALITY_HR_RANGE: [0.7, 3.0]
+    # 计算 SNR 时统计总功率的有效频带，单位 Hz；应包含上述心率范围。
+    QUALITY_SPECTRUM_RANGE: [0.4, 4.0]
+    # 以软心率峰值为中心的高斯窗标准差，单位 Hz；越小则峰值邻域越窄。
+    QUALITY_PEAK_SIGMA_HZ: 0.1
+    # SNR 到 [0,1] 质量映射的中点，单位 dB；SNR(dB) 等于此值时质量为 0.5。
+    QUALITY_SNR_MIDPOINT_DB: -5.0
+
+INFERENCE:
+  BATCH_SIZE: 2
+  EVALUATION_METHOD: "FFT"
+  EVALUATION_LEVEL: video
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False
+    WINDOW_SIZE: 10
+  MODEL_PATH: ""

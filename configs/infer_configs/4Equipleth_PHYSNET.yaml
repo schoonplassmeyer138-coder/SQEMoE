@@ -1,0 +1,10 @@
+BASE: ['../train_configs/intra/4Equipleth_PHYSNET.yaml']
+TOOLBOX_MODE: "only_test"
+
+TEST:
+  # 留空时，测试输出保存到 runs/exp/<EXP.NAME>/test_outputs。
+  OUTPUT_SAVE_DIR: ""
+
+INFERENCE:
+  # 02 实验验证集选出的最佳权重：Epoch5，min_val_loss = 0.8436811311979486。
+  MODEL_PATH: "runs/exp/Equipleth_Physnet_160_02/PreTrainedModels/Equipleth_Equipleth_Equipleth_Physnet_Epoch5.pth"

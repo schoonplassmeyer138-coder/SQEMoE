@@ -1,0 +1,152 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"
+
+TRAIN:
+  BATCH_SIZE: 8
+  EPOCHS: 30
+  LR: 1e-4
+  WEIGHT_DECAY: 0.1
+  DATA:
+    FS: 30
+    DATASET: PhysDrive
+    DATA_PATH: "/data/users/lifangbiao/datasets/PhysDrive/PhysDrive(Publication)"
+    CACHED_PATH: "/data/users/lifangbiao/datasets/PhysDrive/PreprocessedData"
+    DO_PREPROCESS: False
+    DATA_FORMAT: NCDHW
+    BEGIN: 0.0
+    END: 0.8
+    # 预处理缓存名：只在数据预处理参数变化时修改。
+    PREPROCESSED_DATA_NAME: PhysDrive_RGBNIR_Standardized_FaceCrop_288_FilterFlat
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 288
+      # PhysDrive RGB/NIR 预处理：先在 RGB 上定位人脸，再把同一人脸区域按分辨率比例映射到 NIR。
+      CROP_FACE:
+        # True 表示启用人脸裁剪；False 则直接将整帧 resize 到 128x128。
+        DO_CROP_FACE: True
+        # True 表示在人脸检测框基础上扩大裁剪区域，保留额头、脸颊等 rPPG 有效区域。
+        USE_LARGE_FACE_BOX: True
+        # 人脸框放大倍率；1.5 表示宽高都扩大到原检测框的 1.5 倍。
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          # False 表示只在首帧检测一次人脸，后续所有帧复用这个框；更快且时间上更稳定。
+          DO_DYNAMIC_DETECTION: False
+          # 动态检测开启时，每隔多少帧重新检测一次；当前 DO_DYNAMIC_DETECTION=False 时不生效。
+          DYNAMIC_DETECTION_FREQUENCY: 30
+          # 动态检测开启时，可用多次检测框的中位数作为固定框；当前配置下不生效。
+          USE_MEDIAN_FACE_BOX: False
+      RESIZE:
+        W: 128
+        H: 128
+
+VALID:
+  DATA:
+    FS: 30
+    DATASET: PhysDrive
+    DATA_PATH: "/data/users/lifangbiao/datasets/PhysDrive/PhysDrive(Publication)"
+    CACHED_PATH: "/data/users/lifangbiao/datasets/PhysDrive/PreprocessedData"
+    DO_PREPROCESS: False
+    DATA_FORMAT: NCDHW
+    BEGIN: 0.8
+    END: 0.9
+    # 预处理缓存名：只在数据预处理参数变化时修改。
+    PREPROCESSED_DATA_NAME: PhysDrive_RGBNIR_Standardized_FaceCrop_288_FilterFlat
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 288
+      # PhysDrive RGB/NIR 预处理：先在 RGB 上定位人脸，再把同一人脸区域按分辨率比例映射到 NIR。
+      CROP_FACE:
+        # True 表示启用人脸裁剪；False 则直接将整帧 resize 到 128x128。
+        DO_CROP_FACE: True
+        # True 表示在人脸检测框基础上扩大裁剪区域，保留额头、脸颊等 rPPG 有效区域。
+        USE_LARGE_FACE_BOX: True
+        # 人脸框放大倍率；1.5 表示宽高都扩大到原检测框的 1.5 倍。
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          # False 表示只在首帧检测一次人脸，后续所有帧复用这个框；更快且时间上更稳定。
+          DO_DYNAMIC_DETECTION: False
+          # 动态检测开启时，每隔多少帧重新检测一次；当前 DO_DYNAMIC_DETECTION=False 时不生效。
+          DYNAMIC_DETECTION_FREQUENCY: 30
+          # 动态检测开启时，可用多次检测框的中位数作为固定框；当前配置下不生效。
+          USE_MEDIAN_FACE_BOX: False
+      RESIZE:
+        W: 128
+        H: 128
+
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson','SNR']
+  USE_LAST_EPOCH: False
+  DATA:
+    FS: 30
+    DATASET: PhysDrive
+    DATA_PATH: "/data/users/lifangbiao/datasets/PhysDrive/PhysDrive(Publication)"
+    CACHED_PATH: "/data/users/lifangbiao/datasets/PhysDrive/PreprocessedData"
+    DO_PREPROCESS: False
+    DATA_FORMAT: NCDHW
+    BEGIN: 0.9
+    END: 1.0
+    # 预处理缓存名：只在数据预处理参数变化时修改。
+    PREPROCESSED_DATA_NAME: PhysDrive_RGBNIR_Standardized_FaceCrop_288_FilterFlat
+    PREPROCESS:
+      DATA_TYPE: ['Standardized']
+      LABEL_TYPE: Standardized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 288
+      # PhysDrive RGB/NIR 预处理：先在 RGB 上定位人脸，再把同一人脸区域按分辨率比例映射到 NIR。
+      CROP_FACE:
+        # True 表示启用人脸裁剪；False 则直接将整帧 resize 到 128x128。
+        DO_CROP_FACE: True
+        # True 表示在人脸检测框基础上扩大裁剪区域，保留额头、脸颊等 rPPG 有效区域。
+        USE_LARGE_FACE_BOX: True
+        # 人脸框放大倍率；1.5 表示宽高都扩大到原检测框的 1.5 倍。
+        LARGE_BOX_COEF: 1.5
+        DETECTION:
+          # False 表示只在首帧检测一次人脸，后续所有帧复用这个框；更快且时间上更稳定。
+          DO_DYNAMIC_DETECTION: False
+          # 动态检测开启时，每隔多少帧重新检测一次；当前 DO_DYNAMIC_DETECTION=False 时不生效。
+          DYNAMIC_DETECTION_FREQUENCY: 30
+          # 动态检测开启时，可用多次检测框的中位数作为固定框；当前配置下不生效。
+          USE_MEDIAN_FACE_BOX: False
+      RESIZE:
+        W: 128
+        H: 128
+
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+
+LOG:
+  # 训练曲线等日志输出根目录，最终路径会拼上 EXP.NAME。
+  PATH: runs/exp
+
+EXP:
+  # 实验结果名；可按实验编号自由修改，不影响预处理缓存读取路径。
+  NAME: PhysDrive_FusionPhys_00
+
+
+MODEL:
+  # checkpoint 输出根目录，最终路径为 runs/exp/<EXP.NAME>/PreTrainedModels。
+  MODEL_DIR: runs/exp
+  NAME: FusionPhys
+  # checkpoint 文件名前缀。
+  MODEL_FILE_NAME: PhysDrive_PhysDrive_PhysDrive_FusionPhys
+  RESUME: "/data/users/lifangbiao/RPM-main/runs/exp/PhysDrive_FusionPhys_00/PreTrainedModels/PhysDrive_PhysDrive_PhysDrive_FusionPhys_Epoch21.pth"
+  FUSIONPHYS:
+    MODALITY_MODE: camera_camera_fusion
+    IN_CHS: [3, 1]
+    DIM: 64
+    INPUT_SIZE: 128
+    INPUT_FRAMES: 288
+    SUBMODALITY_GRID_SIZE: 8
+    WAVELET_LEVEL: 5
+    PIB_BLOCKS: 4
+
+INFERENCE:
+  BATCH_SIZE: 8
+  EVALUATION_METHOD: "FFT"
+  EVALUATION_LEVEL: clip
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False

@@ -1,0 +1,100 @@
+BASE: ['']
+TOOLBOX_MODE: "train_and_test"
+
+TRAIN:
+  BATCH_SIZE: 2
+  EPOCHS: 60
+  LR: 5e-5 # 3e-5，5e-5，1e-4，finetune阶段使用更小的OneCycleLR最大学习率,
+  WEIGHT_DECAY: 1e-6 #5e-6, 1e-5
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    PREPROCESS:
+      # EMMF 在模型内部对每个 RGB clip 做标准化，因此 Loader 保持 Raw。
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Standardized 
+      PPG_OFFSET: 25
+      NUM_SAMPLES: 30
+      CHUNK_LENGTH: 300
+
+VALID:
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    PREPROCESS:
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 300
+
+TEST:
+  # 测试预测/可视化输出目录；留空时默认保存到 LOG.PATH/test_outputs，即runs/exp/<EXP.NAME>/test_outputs。
+  OUTPUT_SAVE_DIR: ""
+  METRICS: ['MAE','RMSE','MAPE','Pearson','SNR']
+  USE_LAST_EPOCH: False
+  DATA:
+    FS: 30
+    DATASET: Equipleth
+    DATA_PATH: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW"
+    SPLIT_FILE: "/mnt/sdbdisk/LYX/datasets/Equipleth/Equipleth_RAW/demo_fold.pkl"
+    DATA_FORMAT: NCDHW
+    USE_RF: True
+    PREPROCESS:
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: Standardized
+      PPG_OFFSET: 25
+      CHUNK_LENGTH: 300
+
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 2
+
+LOG:
+  # 训练曲线等日志输出根目录，最终路径会拼上 EXP.NAME。
+  PATH: runs/exp
+
+EXP:
+  # 实验结果名；可按实验编号自由修改，不影响预处理缓存读取路径。
+  NAME: Equipleth_EMMF_10s_09
+
+MODEL:
+  # checkpoint 输出根目录，最终路径为 runs/exp/<EXP.NAME>/PreTrainedModels。
+  MODEL_DIR: runs/exp
+  NAME: EMMF
+  # checkpoint 文件名前缀。
+  MODEL_FILE_NAME: Equipleth_Equipleth_Equipleth_EMMF
+  # finetone预训练模型路径，如果不需要恢复训练则设置为空字符串""
+  RESUME: "" #"runs/exp/Equipleth_EMMF_10s_01/Equipleth_Equipleth_Equipleth_EMMF_Epoch39.pth"
+  EMMF:
+    MODEL_TYPE: TrustAdaptiveFusionFT
+    #各模态权重
+    LAMBDA_RF: 0.1
+    LAMBDA_RGB: 1.0
+    LAMBDA_FUSION: 1.0
+    #单模态权重，未知
+    LAMBDA_NPC_MODAL: 1.0
+    LAMBDA_SNR_MODAL: 1.0
+    LAMBDA_UNC_MODAL: 1.0
+    #融合模态权重
+    LAMBDA_NPC_FUSION: 1.0
+    LAMBDA_SNR_FUSION: 1.0
+    #正则化项权重
+    UNCERTAINTY_TAU: 0.5
+    #前 SNR_DYNAMIC_EPOCHS 个 epoch 内，SNR 权重从 0.1 指数增长到 1.0，第 30 个 epoch 之后保持 1.0
+    SNR_DYNAMIC_WEIGHT: True
+    SNR_DYNAMIC_START: 0.1
+    SNR_DYNAMIC_EPOCHS: 50 #30
+
+INFERENCE:
+  BATCH_SIZE: 8
+  EVALUATION_METHOD: "FFT"
+  EVALUATION_LEVEL: video #clip
+  EVALUATION_WINDOW:
+    USE_SMALLER_WINDOW: False
