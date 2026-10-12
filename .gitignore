@@ -11,3 +11,6 @@ __pycache__/
 # 环境文件
 .env
 .venv/
+
+# VS Code 配置
+.vscode/
